@@ -103,4 +103,4 @@ const escrita = (request, response) => {
 app.post('/escrita', escrita)
 app.get('/leitura/:inverter', leituraUm)
 app.get('/leitura', leitura)
-app.get('/iventer', leitura)
+app.get('/iventer', iventer)

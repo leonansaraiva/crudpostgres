@@ -55,7 +55,7 @@ const inverter = (request, response) => {
   select ROW_NUMBER () OVER (ORDER BY createdat) AS ORDEM, 
   to_char(createdat, 'DD Mon YYYY') as dia, to_char(createdat, 'HH12:MI:SS') as hora,
   dados->'values'->'eactotal' AS eactotal,
-  dados->'values'->'ppv1' AS ppv1,
+  dados->'values'->'ppv' AS ppv,
   dados->'inverter' AS inverter,
   createdat
   from leituras 
@@ -77,7 +77,7 @@ const leituraUm = (request, response) => {
       select ROW_NUMBER () OVER (ORDER BY createdat) AS ORDEM, 
       to_char(createdat, 'DD Mon YYYY') as dia, to_char(createdat, 'HH12:MI:SS') as hora,
       dados->'values'->'eactotal' AS eactotal,
-      dados->'values'->'ppv1' AS ppv1,
+      dados->'values'->'ppv' AS ppv,
       dados->'inverter' AS inverter,
       createdat
       from leituras where dados->>'inverter' like '`+inverter+`'

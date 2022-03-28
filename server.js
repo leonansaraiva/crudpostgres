@@ -46,7 +46,7 @@ const leitura = (request, response) => {
   }
 
 
-const iventer = (request, response) => {
+const inverter = (request, response) => {
   pool.query(`
   with records as (
   select ROW_NUMBER () OVER (ORDER BY createdat) AS ORDEM, 
@@ -103,4 +103,4 @@ const escrita = (request, response) => {
 app.post('/escrita', escrita)
 app.get('/leitura/:inverter', leituraUm)
 app.get('/leitura', leitura)
-app.get('/iventer', iventer)
+app.get('/inverter', inverter)

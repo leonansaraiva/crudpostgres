@@ -1,14 +1,23 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
-const port = 3000
+
+require('dotenv').config();
+
+const user =  process.env.USER
+const host =  process.env.HOST
+const database = process.env.DATABASE
+const password =   process.env.PASSWORD
+const portserver = process.env.PORTSERVER || 80
+const portdb = process.env.PORTDB || 5432
+
 const Pool = require('pg').Pool
 const pool = new Pool({
-  user: 'postgres',
-  host: '144.22.226.142',
-  database: 'solar',
-  password: 'myPassword',
-  port: 5432,
+  user: user,
+  host: host,
+  database: database,
+  password: password,
+  port: portdb,
 })
 
 
@@ -23,8 +32,8 @@ app.get('/', (request, response) => {
     response.json({ info: 'Node.js, Express, and Postgres API' })
   })
 
-app.listen(port, () => {
-console.log(`App running on port ${port}.`)
+app.listen(portserver, () => {
+console.log(`App running on port ${portserver}.`)
 })
 
 const leitura = (request, response) => {

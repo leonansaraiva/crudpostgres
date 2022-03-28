@@ -108,20 +108,23 @@ const status = (request, response) => {
 
   pool.query(`
   with records as (
-  select  
-  dados->'values'->'pvstatus' AS status,
-  dados->'inverter' AS inverter,
-  createdat
-  from leituras
-   order by createdat desc
-  )
-  
-  select  count (rega.inverter::text), rega.status::text
-  from records rega join (select inverter::text, max(createdat) as maxDate
-  from records GROUP BY inverter::text) regb
-  ON rega.inverter::text = regb.inverter::text AND rega.createdat = regb.maxDate
-  
-  group by rega.status::text `, (error, results) => {
+    select  
+    dados->'values'->'pvstatus' AS status,
+    dados->'inverter' AS inverter,
+    createdat
+    from leituras where createdat BETWEEN NOW() - INTERVAL '10 MINUTES' AND NOW()
+     order by createdat desc
+    )
+    
+    select  count (rega.inverter::text) as inversores, rega.status::text
+    from records rega join (select inverter::text, max(createdat) as maxDate
+    from records GROUP BY inverter::text) regb
+    ON rega.inverter::text = regb.inverter::text AND rega.createdat = regb.maxDate
+    
+    group by rega.status::text
+    
+    
+    `, (error, results) => {
     if (error) {
       throw error
     }

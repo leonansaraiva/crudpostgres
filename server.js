@@ -4,7 +4,7 @@ const app = express()
 
 require('dotenv').config();
 
-const user =  process.env.USER
+const user =  process.env.USERDB
 const host =  process.env.HOST
 const database = process.env.DATABASE
 const password =   process.env.PASSWORD
@@ -45,10 +45,53 @@ const leitura = (request, response) => {
     })
   }
 
+
+const iventer = (request, response) => {
+  pool.query(`
+  with records as (
+  select ROW_NUMBER () OVER (ORDER BY createdat) AS ORDEM, 
+  to_char(createdat, 'DD Mon YYYY') as dia, to_char(createdat, 'HH12:MI:SS') as hora,
+  dados->'values'->'eactotal' AS eactotal,
+  dados->'values'->'ppv1' AS ppv1,
+  dados->'inverter' AS inverter,
+  createdat
+  from leituras 
+   order by createdat desc
+  )
+  select distinct(inverter::text)
+  from records`, (error, results) => {
+    if (error) {
+      throw error
+    }
+    response.status(200).json(results.rows)
+  })
+}
+
+const leituraUm = (request, response) => {
+    let inverter = request.params['inverter'] 
+    console.log(inverter)
+    pool.query(`with records as (
+      select ROW_NUMBER () OVER (ORDER BY createdat) AS ORDEM, 
+      to_char(createdat, 'DD Mon YYYY') as dia, to_char(createdat, 'HH12:MI:SS') as hora,
+      dados->'values'->'eactotal' AS eactotal,
+      dados->'values'->'ppv1' AS ppv1,
+      dados->'inverter' AS inverter,
+      createdat
+      from leituras where dados->>'inverter' like '`+inverter+`'
+       order by createdat desc
+      )
+      
+      select recorda.*, b.ordem as bordem, b.createdat as createdat, (b.createdat-recorda.createdat) as delay 
+      from records recorda inner join records b on recorda.ordem = b.ordem-1 `, (error, results) => {
+      if (error) {
+        throw error
+      }
+      response.status(200).json(results.rows)
+    })
+}
+
 const escrita = (request, response) => {
     const dados  = request.body
-    console.log(dados)
-
     pool.query('INSERT INTO leituras (dados) VALUES ($1)', [dados], (error, results) => {
     if (error) {
         throw error
@@ -58,4 +101,6 @@ const escrita = (request, response) => {
 }
 
 app.post('/escrita', escrita)
+app.get('/leitura/:inverter', leituraUm)
 app.get('/leitura', leitura)
+app.get('/iventer', leitura)
